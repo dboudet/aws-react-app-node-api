@@ -58,7 +58,7 @@ app.post("/login", (req, res) => {
           .send("Authentication failed: User not found or incorrect password.")
       }
       if (userFound && userFound.password === req.body.password) {
-        res.status(200).send("Logged in successfully!")
+        res.status(200).send(userFound)
       } else {
         res.status(401).send("Authentication failed.")
       }
