@@ -40,7 +40,11 @@ app.get("/users", (req, res) => {
 app.post("/create-user", (req, res) => {
   new UsersModel(req.body)
     .save()
-    .then(() => res.status(200).send("User has been created."))
+    .then(() => {
+      UsersModel.findOne({ email: req.body.email }).then((foundUser) =>
+        res.send(foundUser)
+      )
+    })
     .catch((err) => console.error(err))
 })
 
@@ -48,13 +52,15 @@ app.post("/login", (req, res) => {
   UsersModel.findOne({ email: req.body.email })
     .then((userFound) => {
       console.log(userFound)
-      if (!userFound) {
-        return res.status(404).send("User not found")
+      if (!userFound || userFound.password !== req.body.password) {
+        return res
+          .status(404)
+          .send("Authentication failed: User not found or incorrect password.")
       }
       if (userFound && userFound.password === req.body.password) {
-        res.status(200).send("User is good to go")
+        res.status(200).send("Logged in successfully!")
       } else {
-        res.status(401).send("User authentication failed")
+        res.status(401).send("Authentication failed.")
       }
     })
     .catch((err) => console.error(err))
